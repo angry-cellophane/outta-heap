@@ -25,12 +25,24 @@ public final class RepoImpl implements Repo {
 
     private final TreeSet<Page> pages;
 
+    private final long pavlovFieldOffset;
+    private Object pavlov;
+
     RepoImpl(long bufferSize) {
         U = unsafe();
+        pavlovFieldOffset = pavlovFieldOffset(U);
 
         this.mm = new MemoryMeter();
         this.bufferSize = bufferSize;
         this.pages = new TreeSet<>();
+    }
+
+    private long pavlovFieldOffset(Unsafe u) {
+        try {
+            return u.objectFieldOffset(RepoImpl.class.getDeclaredField("pavlov"));
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Unsafe unsafe() {
@@ -69,7 +81,7 @@ public final class RepoImpl implements Repo {
 
     private <T> Ref<T> put0(T o, long objectSize, Page p) {
         U.copyMemory(o, 0, null, p.address + p.startOffset, objectSize);
-        RefImpl<T> ref = new RefImpl<>(p.startOffset, objectSize, p);
+        RefImpl<T> ref = new RefImpl<>(p.address + p.startOffset);
         p.startOffset += objectSize + 1;
         return ref;
     }
@@ -80,7 +92,10 @@ public final class RepoImpl implements Repo {
     }
 
     public <T> T get(Ref<T> ref) {
-        return null;
+        U.putLong(this, pavlovFieldOffset, ref.address());
+        @SuppressWarnings("unchecked") T o = (T) pavlov;
+        pavlov = null;
+        return o;
     }
 
     @Override public void clean() {
