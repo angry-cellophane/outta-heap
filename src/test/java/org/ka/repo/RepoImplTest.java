@@ -18,11 +18,22 @@ public class RepoImplTest {
     }
 
     @Test public void testPutAndGetInteger() {
-        RepoImpl repo = new RepoImpl(32);
+        RepoImpl repo = new RepoImpl(64);
         Integer i = 10;
         Ref<Integer> ref = repo.put(i);
         Integer j = repo.get(ref);
         assertEquals(i,j);
+        repo.clean();
+    }
+
+    @Test public void testPut2integersAndGetThem() {
+        RepoImpl repo = new RepoImpl(64);
+        Integer a = 10, b = 20;
+        Ref<Integer> refA = repo.put(a);
+        Ref<Integer> refB = repo.put(b);
+
+        assertEquals(b,repo.get(refB));
+        assertEquals(a,repo.get(refA));
         repo.clean();
     }
 
