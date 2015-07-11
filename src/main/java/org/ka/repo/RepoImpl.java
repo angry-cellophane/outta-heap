@@ -13,9 +13,8 @@ import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.concurrent.Callable;
 
 public final class RepoImpl implements Repo {
 
@@ -32,7 +31,14 @@ public final class RepoImpl implements Repo {
         U = unsafe();
         pavlovFieldOffset = pavlovFieldOffset(U);
 
-        this.mm = new MemoryMeter();
+        this.mm = new MemoryMeter().withTrackerProvider(new Callable<Set<Object>>() {
+            @Override
+            public Set<Object> call() throws Exception {
+                HashSet<Object> set = new HashSet<>();
+                set.add(Class.class);
+                return set;
+            }
+        });
         this.bufferSize = bufferSize;
         this.pages = new TreeSet<>();
     }
