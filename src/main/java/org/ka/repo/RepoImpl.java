@@ -6,14 +6,12 @@ import org.ka.ForTesting;
 import org.ka.page.Page;
 import org.ka.ref.Ref;
 import org.ka.ref.RefImpl;
-import sun.instrument.InstrumentationImpl;
 import sun.misc.Unsafe;
 
-import java.lang.instrument.Instrumentation;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
 public final class RepoImpl implements Repo {
@@ -32,8 +30,7 @@ public final class RepoImpl implements Repo {
         pavlovFieldOffset = pavlovFieldOffset(U);
 
         this.mm = new MemoryMeter().withTrackerProvider(new Callable<Set<Object>>() {
-            @Override
-            public Set<Object> call() throws Exception {
+            @Override public Set<Object> call() throws Exception {
                 HashSet<Object> set = new HashSet<>();
                 set.add(Class.class);
                 return set;
